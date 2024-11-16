@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Heart, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { db, auth } from '../firebase';
 
 const matchedGroup = [
   {
+    id: "user1",
     name: "Alex Chen",
     age: 24,
     bio: "Coffee enthusiast, amateur photographer",
@@ -11,6 +14,7 @@ const matchedGroup = [
     compatibility: 89
   },
   {
+    id: "user2",
     name: "Sarah Johnson",
     age: 26,
     bio: "Travel blogger, yoga instructor",
@@ -18,6 +22,7 @@ const matchedGroup = [
     compatibility: 85
   },
   {
+    id: "user3",
     name: "Mike Rodriguez",
     age: 23,
     bio: "Game developer, music producer",
@@ -28,10 +33,102 @@ const matchedGroup = [
 
 const Persons = () => {
   const navigate = useNavigate();
+  const [currentUser, setCurrentUser] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
 
-  const handleAcceptMatches = () => {
-    navigate('/chat');
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        setCurrentUser(user);
+        try {
+          const userDoc = await getDoc(doc(db, 'users', user.uid));
+          if (userDoc.exists()) {
+            setUserProfile(userDoc.data());
+          }
+        } catch (err) {
+          console.error("Error fetching user profile:", err);
+          setError("Failed to load user profile");
+        }
+      } else {
+        navigate('/signin');
+      }
+    });
+    return () => unsubscribe();
+  }, [navigate]);
+
+  useEffect(() => {
+    if (userProfile && !userProfile.questionnaireCompleted) {
+      navigate('/questions');
+    }
+  }, [userProfile, navigate]);
+
+  const createGroupInDb = async () => {
+    if (!currentUser) throw new Error("No user authenticated");
+
+    const groupData = {
+      createdAt: new Date().toISOString(),
+      members: [currentUser.uid, ...matchedGroup.map(person => person.id)],
+      memberProfiles: {
+        [currentUser.uid]: {
+          name: userProfile?.name || "Current User",
+          joinedAt: new Date().toISOString()
+        },
+        ...matchedGroup.reduce((acc, person) => ({
+          ...acc,
+          [person.id]: {
+            name: person.name,
+            joinedAt: new Date().toISOString()
+          }
+        }), {})
+    },
+      lastActivity: new Date().toISOString(),
+      matchScore: Math.round(matchedGroup.reduce((acc, p) => acc + p.compatibility, 0) / matchedGroup.length)
+    };
+    const groupRef = doc(db, 'groups', `group_${currentUser.uid}`);
+    await setDoc(groupRef, groupData);
+    return groupRef.id;
   };
+
+
+  const handleAcceptMatches = async () => {    
+    if (!currentUser) {
+      setError("Please sign in to continue");
+      navigate('/signin');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const groupId = await createGroupInDb();
+
+      await setDoc(doc(db, 'users', currentUser.uid), {
+        groupMatched: true,
+        groupId: groupId,
+        matchedAt: new Date().toISOString(),
+        matchedWith: matchedGroup.map(person => ({
+          id: person.id,
+          name: person.name,
+          compatibility: person.compatibility
+        }))
+      }, {merge: true});
+      navigate('/chat');
+    } catch(error) {
+      console.error("Error saving group matches:", error);
+      setError("Failed to join group chat. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!currentUser || !userProfile) {
+    return <div className="text-center p-6">Loading...</div>;
+  }
+
+
   return (
   <div className="max-w-4xl mx-auto p-6">
     <div className="text-center mb-12">
@@ -40,6 +137,13 @@ const Persons = () => {
       </h1>
       <p className="text-gray-600">We've found a group that shares your interests and values</p>
     </div>
+
+    {error && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl text-center">
+          {error}
+        </div>
+    )}
+
     <div className="grid md:grid-cols-3 gap-6">
       {matchedGroup.map((person, index) => (
         <div key={index} className="bg-white p-6 rounded-2xl shadow-lg border border-purple-100 hover:border-purple-200 transition-all duration-300">
@@ -68,8 +172,9 @@ const Persons = () => {
     <button
       className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-4 rounded-xl hover:shadow-lg transition-all duration-300 font-semibold mt-8"
       onClick={handleAcceptMatches}
+      disabled={loading}
     >
-      Join Group Chat
+      {loading ? "Joining Group..." : "Join Group Chat"}
     </button>
   </div>
   )
