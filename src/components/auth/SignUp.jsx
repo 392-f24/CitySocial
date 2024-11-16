@@ -1,8 +1,10 @@
 import React, {useState} from 'react'
 import { auth } from '../../firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
 
 const SignUp = () => {
+    const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     
@@ -11,6 +13,8 @@ const SignUp = () => {
         createUserWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
                 console.log(userCredential)
+                // Once you've signed up, navigate to questions
+                navigate('/questions');
             })
             .catch((error) => {
                 console.log(error);
@@ -35,6 +39,12 @@ const SignUp = () => {
                 </input>
                 <button type='submit'>Sign Up</button>
             </form>
+            <p>Already have an account?</p>
+            <a 
+                href="/signin" 
+                className="text-blue-600 hover:underline"
+            >Sign In</a>
+
         </div>
     )
 }

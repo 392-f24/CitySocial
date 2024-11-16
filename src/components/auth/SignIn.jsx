@@ -1,8 +1,10 @@
 import React, {useState} from 'react'
 import { auth } from '../../firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
 
 const SignIn = () => {
+    const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     
@@ -10,7 +12,9 @@ const SignIn = () => {
         e.preventDefault();
         signInWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
-                console.log(userCredential)
+                console.log(userCredential);
+                // Once signed in, (returning user), move to chat
+                navigate('/chat');
             })
             .catch((error) => {
                 console.log(error);
@@ -35,6 +39,11 @@ const SignIn = () => {
                 </input>
                 <button type='submit'>Log In</button>
             </form>
+            <p>Need to make an aacount?</p>
+            <a 
+                href="/" 
+                className="text-blue-600 hover:underline"
+            >Sign Up</a>
         </div>
     )
 }
