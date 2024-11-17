@@ -3,6 +3,7 @@ import { Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { db, auth } from '../firebase';
+import Navigation from './Navigation';
 
 const questions = [
     {
@@ -104,6 +105,7 @@ const Questionnaire = () => {
 
     return (
         <div className="max-w-2xl mx-auto p-6">
+            <Navigation/>
         <div className="text-center mb-12">
             <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
             Find Your Tribe

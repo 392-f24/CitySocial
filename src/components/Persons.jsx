@@ -3,6 +3,7 @@ import { Heart, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { db, auth } from '../firebase';
+import Navigation from './Navigation';
 
 const matchedGroup = [
   {
@@ -108,12 +109,12 @@ const Persons = () => {
       await setDoc(doc(db, 'users', currentUser.uid), {
         groupMatched: true,
         groupId: groupId,
-        matchedAt: new Date().toISOString(),
-        matchedWith: matchedGroup.map(person => ({
-          id: person.id,
-          name: person.name,
-          compatibility: person.compatibility
-        }))
+        //matchedAt: new Date().toISOString(),
+        //matchedWith: matchedGroup.map(person => ({
+        //  id: person.id,
+        //  name: person.name,
+        //  compatibility: person.compatibility
+        //}))
       }, {merge: true});
       navigate('/chat');
     } catch(error) {
@@ -131,6 +132,7 @@ const Persons = () => {
 
   return (
   <div className="max-w-4xl mx-auto p-6">
+    <Navigation/>
     <div className="text-center mb-12">
       <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
         Your Perfect Match Found!
