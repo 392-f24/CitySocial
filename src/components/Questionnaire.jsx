@@ -58,25 +58,6 @@ const Questionnaire = () => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    useEffect(() => {
-        // Initialize ranking states with default values
-        const initialRankingStates = {};
-        questions.forEach(q => {
-            if (q.type === 'rank') {
-                initialRankingStates[q.id] = q.options.map(opt => opt.value);
-            }
-        });
-        setRankingStates(initialRankingStates);
-    }, []);
-
-    useEffect(() => {
-        // When component mounts, initialize the answers state for neighborhoods
-        setAnswers(prev => ({
-            ...prev,
-            9: neighborhoods.filter(n => n.trim() !== '')
-        }));
-    }, []);
-
     const handleAnswerChange = (questionId, value) => {
         setAnswers(prev => ({
             ...prev,
@@ -111,13 +92,9 @@ const Questionnaire = () => {
         const newNeighborhoods = [...neighborhoods];
         newNeighborhoods[index] = value;
         setNeighborhoods(newNeighborhoods);
-
-        const nonEmptyNeighborhoods = newNeighborhoods.filter(n => n.trim() !== '');
-    
-        console.log('Setting answers with neighborhoods:', nonEmptyNeighborhoods);
         setAnswers(prev => ({
             ...prev,
-            9: nonEmptyNeighborhoods
+            11: newNeighborhoods.filter(n => n.trim() !== '')
         }));
     };
 
@@ -142,7 +119,7 @@ const Questionnaire = () => {
             setSelectedHobbies(newHobbies);
             setAnswers(prev => ({
                 ...prev,
-                10: newHobbies
+                12: newHobbies
             }));
         }
         setHobbyInput('');
@@ -154,7 +131,7 @@ const Questionnaire = () => {
         setSelectedHobbies(newHobbies);
         setAnswers(prev => ({
             ...prev,
-            10: newHobbies
+            12: newHobbies
         }));
     };
 
@@ -167,7 +144,7 @@ const Questionnaire = () => {
         setNeighborhoods(newNeighborhoods.length ? newNeighborhoods : ['']);
         setAnswers(prev => ({
             ...prev,
-            9: newNeighborhoods.filter(n => n.trim() !== '')
+            11: newNeighborhoods.filter(n => n.trim() !== '')
         }));
     };
 
@@ -360,40 +337,12 @@ const Questionnaire = () => {
     };
 
     const isQuestionnaireComplete = () => {
-        return questions.every(q => {
-            console.log(`Checking question ${q.id}:`, {
-                type: q.type,
-                answer: answers[q.id],
-                rankingState: q.type === 'rank' ? rankingStates[q.id] : undefined
-            });
-
-            if (q.type === 'scale' || q.type === 'select') {
-                const isComplete = answers[q.id] !== undefined;
-                console.log(`Scale/Select question ${q.id} complete:`, isComplete);
-                return isComplete;
-            }
-            if (q.type === 'rank') {
-                const isComplete = rankingStates[q.id] !== undefined;
-                console.log(`Rank question ${q.id} complete:`, isComplete);
-                return isComplete;
-            }
-            if (q.type === 'text-multiple') {
-                console.log('Checking neighborhoods:', {
-                    answers: answers[q.id],
-                    neighborhoods: neighborhoods,
-                    isComplete: answers[q.id] && answers[q.id].length > 0
-                });
-                return answers[q.id] && answers[q.id].length > 0;
-            }
-            if (q.type === 'hobbies') {
-                const isComplete = answers[q.id].length > 0;
-                console.log(`Hobbies question ${q.id} complete:`, isComplete);
-                return isComplete;
-            }
-            console.log(`Unknown question type ${q.type} for question ${q.id}`);
-            return false;
-        });
-    };
+    // Check if neighborhoods and hobbies are filled out
+    return (
+        answers[11] && answers[11].length > 0 &&
+        answers[12] && answers[12].length > 0
+    );
+};
 
     const handleSubmit = async () => {
         if (!currentUser) {
@@ -446,7 +395,7 @@ const Questionnaire = () => {
     return (
         <div className="max-w-2xl mx-auto p-6">
             <Navigation />
-            <div className="text-center mb-12">
+            <div className="mt-4 text-center">
                 <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                     Find Your Tribe
                 </h1>
