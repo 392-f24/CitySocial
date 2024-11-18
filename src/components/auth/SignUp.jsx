@@ -81,6 +81,11 @@ const SignUp = () => {
                     {loading ? 'Signing up...' : 'Sign Up'}
                 </button>
             </form>
+            <p>Already have an account?</p>
+            <a 
+                href="/signin" 
+                className="text-blue-600 hover:underline"
+            >Log In</a>
         </div>
     );
 }
