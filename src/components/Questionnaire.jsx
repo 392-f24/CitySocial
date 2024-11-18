@@ -58,6 +58,25 @@ const Questionnaire = () => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
+    useEffect(() => {
+        // Initialize ranking states with default values
+        const initialRankingStates = {};
+        questions.forEach(q => {
+            if (q.type === 'rank') {
+                initialRankingStates[q.id] = q.options.map(opt => opt.value);
+            }
+        });
+        setRankingStates(initialRankingStates);
+    }, []);
+
+    useEffect(() => {
+        // When component mounts, initialize the answers state for neighborhoods
+        setAnswers(prev => ({
+            ...prev,
+            9: neighborhoods.filter(n => n.trim() !== '')
+        }));
+    }, []);
+
     const handleAnswerChange = (questionId, value) => {
         setAnswers(prev => ({
             ...prev,
@@ -92,9 +111,13 @@ const Questionnaire = () => {
         const newNeighborhoods = [...neighborhoods];
         newNeighborhoods[index] = value;
         setNeighborhoods(newNeighborhoods);
+
+        const nonEmptyNeighborhoods = newNeighborhoods.filter(n => n.trim() !== '');
+    
+        console.log('Setting answers with neighborhoods:', nonEmptyNeighborhoods);
         setAnswers(prev => ({
             ...prev,
-            11: newNeighborhoods.filter(n => n.trim() !== '')
+            9: nonEmptyNeighborhoods
         }));
     };
 
@@ -119,7 +142,7 @@ const Questionnaire = () => {
             setSelectedHobbies(newHobbies);
             setAnswers(prev => ({
                 ...prev,
-                12: newHobbies
+                10: newHobbies
             }));
         }
         setHobbyInput('');
@@ -131,7 +154,7 @@ const Questionnaire = () => {
         setSelectedHobbies(newHobbies);
         setAnswers(prev => ({
             ...prev,
-            12: newHobbies
+            10: newHobbies
         }));
     };
 
@@ -144,7 +167,7 @@ const Questionnaire = () => {
         setNeighborhoods(newNeighborhoods.length ? newNeighborhoods : ['']);
         setAnswers(prev => ({
             ...prev,
-            11: newNeighborhoods.filter(n => n.trim() !== '')
+            9: newNeighborhoods.filter(n => n.trim() !== '')
         }));
     };
 
@@ -338,18 +361,36 @@ const Questionnaire = () => {
 
     const isQuestionnaireComplete = () => {
         return questions.every(q => {
+            console.log(`Checking question ${q.id}:`, {
+                type: q.type,
+                answer: answers[q.id],
+                rankingState: q.type === 'rank' ? rankingStates[q.id] : undefined
+            });
+
             if (q.type === 'scale' || q.type === 'select') {
-                return answers[q.id] !== undefined;
+                const isComplete = answers[q.id] !== undefined;
+                console.log(`Scale/Select question ${q.id} complete:`, isComplete);
+                return isComplete;
             }
             if (q.type === 'rank') {
-                return rankingStates[q.id] !== undefined;
+                const isComplete = rankingStates[q.id] !== undefined;
+                console.log(`Rank question ${q.id} complete:`, isComplete);
+                return isComplete;
             }
             if (q.type === 'text-multiple') {
+                console.log('Checking neighborhoods:', {
+                    answers: answers[q.id],
+                    neighborhoods: neighborhoods,
+                    isComplete: answers[q.id] && answers[q.id].length > 0
+                });
                 return answers[q.id] && answers[q.id].length > 0;
             }
             if (q.type === 'hobbies') {
-                return answers[q.id] && answers[q.id].length > 0;
+                const isComplete = answers[q.id].length > 0;
+                console.log(`Hobbies question ${q.id} complete:`, isComplete);
+                return isComplete;
             }
+            console.log(`Unknown question type ${q.type} for question ${q.id}`);
             return false;
         });
     };
