@@ -141,7 +141,7 @@ const App = () => {
         <Route 
           path="/persons" 
           element={
-            <ProtectedRoute requiresAuth requiresQuestionnaire>
+            <ProtectedRoute>
               <Persons />
             </ProtectedRoute>
           } 
