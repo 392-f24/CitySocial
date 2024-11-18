@@ -172,58 +172,60 @@ const Questionnaire = () => {
         </div>
     );
 
-    const renderRankQuestion = (question) => (
-        <DragDropContext onDragEnd={(result) => handleRankingChange(question.id, result)}>
-            <Droppable droppableId={`ranking-${question.id}`}>
-                {(provided) => (
-                    <div
-                        {...provided.droppableProps}
-                        ref={provided.innerRef}
-                        className="space-y-2"
-                    >
-                        {(rankingStates[question.id] || question.options.map(opt => opt.value)).map((value, index) => {
-                            const option = question.options.find(opt => opt.value === value);
-                            return (
-                                <Draggable
-                                    key={option.value}
-                                    draggableId={`${question.id}-${option.value}`}
-                                    index={index}
-                                >
-                                    {(provided, snapshot) => (
-                                        <div
-                                            ref={provided.innerRef}
-                                            {...provided.draggableProps}
-                                            className={`flex items-center p-4 rounded-xl ${
-                                                snapshot.isDragging
-                                                    ? 'bg-purple-100 shadow-lg'
-                                                    : 'bg-purple-50'
-                                            } transition-colors duration-300`}
-                                        >
+    const renderRankQuestion = (question) => {
+        return (
+            <DragDropContext onDragEnd={(result) => handleRankingChange(question.id, result)}>
+                <Droppable droppableId={`ranking-${question.id}`}>
+                    {(provided) => (
+                        <div
+                            {...provided.droppableProps}
+                            ref={provided.innerRef}
+                            className="space-y-2"
+                        >
+                            {(rankingStates[question.id] || question.options.map(opt => opt.value)).map((value, index) => {
+                                const option = question.options.find(opt => opt.value === value);
+                                return (
+                                    <Draggable
+                                        key={option.value}
+                                        draggableId={`${question.id}-${option.value}`}
+                                        index={index}
+                                    >
+                                        {(provided, snapshot) => (
                                             <div
-                                                {...provided.dragHandleProps}
-                                                className="mr-3 text-gray-400 hover:text-purple-600"
+                                                ref={provided.innerRef}
+                                                {...provided.draggableProps}
+                                                className={`flex items-center p-4 rounded-xl bg-purple-50 hover:bg-purple-100 transition-colors duration-300 ${
+                                                    snapshot.isDragging
+                                                        ? 'bg-purple-100 shadow-lg'
+                                                        : ''
+                                                }`}
                                             >
-                                                <GripVertical className="w-5 h-5" />
-                                            </div>
-                                            <div className="flex-1">
-                                                <div className="font-medium flex items-center">
-                                                    <span className="w-6 h-6 flex items-center justify-center bg-purple-200 rounded-full mr-3 text-sm">
-                                                        {index + 1}
-                                                    </span>
-                                                    {option.label}
+                                                <div
+                                                    {...provided.dragHandleProps}
+                                                    className="mr-4 text-gray-400 hover:text-purple-600 p-2 -m-2"
+                                                >
+                                                    <GripVertical className="w-5 h-5" />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <div className="font-medium flex items-center">
+                                                        <span className="w-6 h-6 flex items-center justify-center bg-purple-200 rounded-full mr-3 text-sm">
+                                                            {index + 1}
+                                                        </span>
+                                                        {option.label}
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    )}
-                                </Draggable>
-                            );
-                        })}
-                        {provided.placeholder}
-                    </div>
-                )}
-            </Droppable>
-        </DragDropContext>
-    );
+                                        )}
+                                    </Draggable>
+                                );
+                            })}
+                            {provided.placeholder}
+                        </div>
+                    )}
+                </Droppable>
+            </DragDropContext>
+        );
+    };
 
     const renderSelectQuestion = (question) => (
         <div className="grid grid-cols-1 gap-3">
@@ -407,7 +409,7 @@ const Questionnaire = () => {
                 <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                     Find Your Tribe
                 </h1>
-                <p className="mt-4 text-gray-600">Answer these questions to discover genuine connections with like-minded people</p>
+                <p className="mt-4 text-gray-600">Answer these research-driven questions to discover genuine connections with people near you</p>
             </div>
 
             {error && (
