@@ -9,6 +9,7 @@ import Persons from '../src/components/Persons';
 import GroupInterface from '../src/components/GroupInterface';
 import SignIn from './components/auth/SignIn';
 import SignUp from './components/auth/SignUp';
+import Scheduler from "./components/Scheduler.jsx";
 
 // Protected Route wrapper component
 const ProtectedRoute = ({ children, requiresAuth, requiresQuestionnaire, requiresGroup }) => {
@@ -138,13 +139,22 @@ const App = () => {
           } 
         />
 
-        <Route 
-          path="/persons" 
+        <Route
+          path="/persons"
           element={
             <ProtectedRoute>
               <Persons />
             </ProtectedRoute>
-          } 
+          }
+        />
+
+        <Route
+            path="/whentomeet"
+            element={
+              <ProtectedRoute>
+                <Scheduler />
+              </ProtectedRoute>
+            }
         />
 
         <Route 
