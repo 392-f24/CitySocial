@@ -4,6 +4,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from './firebase'; // Adjust import path as needed
 
+
 import Questionnaire from '../src/components/Questionnaire';
 import Persons from '../src/components/Persons';
 import GroupInterface from '../src/components/GroupInterface';
@@ -108,6 +109,7 @@ const AuthRoute = ({ children }) => {
 };
 
 const App = () => {
+
   return (
     <Router>
       <Routes>
