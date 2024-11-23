@@ -2,19 +2,20 @@ import { db } from '../firebase'; // Import your Firebase setup
 import { doc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 
 /**
- * 1. Create a user document in the `users` collection
+ * Create a user document in the `users` collection
+ * @param {string} uid - The user's UID from Firebase Authentication
  * @param {string} name - The user's name
  * @param {string} email - The user's email
  * @returns {Promise<void>}
  */
-export const createUserDocument = async (name, email) => {
+export const createUserDocument = async (uid, name, email) => {
     try {
-        const userId = doc(db, 'users').id; // Generate a default Firestore document ID
+        const userDocRef = doc(db, 'users', uid); // Use the UID as the document ID
 
         const userData = {
             name,
             email,
-            groupId: null,                  // User is not in a group yet
+            groupId: null,                  // Default: not in a group
             groupMatched: false,            // Default value
             questionnaireCompleted: false,  // Default value
             answers: {},                    // Empty answers initially
@@ -23,9 +24,9 @@ export const createUserDocument = async (name, email) => {
         };
 
         // Write to Firestore
-        await setDoc(doc(db, 'users', userId), userData);
+        await setDoc(userDocRef, userData);
 
-        console.log(`User created successfully with ID: ${userId}`);
+        console.log(`User document created for UID: ${uid}`);
     } catch (error) {
         console.error('Error creating user document:', error);
         throw new Error('Failed to create user document');
