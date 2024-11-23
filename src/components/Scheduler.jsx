@@ -4,6 +4,8 @@ import { collection, doc, setDoc, getDocs, updateDoc } from "firebase/firestore"
 import React, { useState, useEffect } from "react";
 
 
+
+
 const Scheduler = () => {
     const [availability, setAvailability] = useState({
         monday: Array(10).fill(false),
@@ -15,6 +17,8 @@ const Scheduler = () => {
         sunday: Array(10).fill(false),
     });
     const [groupAvailability, setGroupAvailability] = useState(null);
+
+
 
 
     // Load Alice's availability from Firestore for group1 when component mounts
@@ -32,8 +36,12 @@ const Scheduler = () => {
         };
 
 
+
+
         loadAvailability();
     }, []);
+
+
 
 
     const addMockGroups = async () => {
@@ -46,11 +54,15 @@ const Scheduler = () => {
         ];
 
 
+
+
         try {
             // Iterate over mockGroups to add each group document to Firestore
             for (const group of mockGroups) {
                 // Reference to the group document
                 const groupRef = doc(db, "groups", group.id);
+
+
 
 
                 // Add group data to Firestore
@@ -59,9 +71,13 @@ const Scheduler = () => {
                 });
 
 
+
+
                 // Add a membersAndAvailability sub-collection for each group
                 for (const member of group.members) {
                     const memberAvailabilityRef = doc(collection(db, `groups/${group.id}/membersAndAvailability`), member);
+
+
 
 
                     // Initialize default availability (all set to false)
@@ -76,10 +92,14 @@ const Scheduler = () => {
                     };
 
 
+
+
                     // Add member availability to Firestore
                     await setDoc(memberAvailabilityRef, { availability: defaultAvailability });
                 }
             }
+
+
 
 
             console.log("Mock groups and member availabilities added successfully!");
@@ -89,11 +109,15 @@ const Scheduler = () => {
     };
 
 
+
+
     // Function to calculate group availability based on individual member availability
     const calculateGroupAvailability = async () => {
         try {
             const schedulesRef = collection(db, `groups/group1/membersAndAvailability`);
             const scheduleDocs = await getDocs(schedulesRef);
+
+
 
 
             // Initialize a structure to track the group's availability count
@@ -108,9 +132,13 @@ const Scheduler = () => {
             };
 
 
+
+
             // Loop through each user's availability and calculate group availability
             scheduleDocs.forEach((doc) => {
                 const userAvailability = doc.data().availability;
+
+
 
 
                 for (const day in userAvailability) {
@@ -123,13 +151,19 @@ const Scheduler = () => {
             });
 
 
+
+
             // Normalize group availability to calculate the proportion of members available at each slot
             const groupSize = scheduleDocs.size;
             const normalizedAvailability = normalizeGroupAvailability(groupAvailability, groupSize);
 
 
+
+
             // Update the group availability state
             setGroupAvailability(normalizedAvailability);
+
+
 
 
             // Update group availability in Firestore
@@ -142,6 +176,8 @@ const Scheduler = () => {
     };
 
 
+
+
     // Function to normalize the group availability count
     const normalizeGroupAvailability = (groupAvailability, groupSize) => {
         for (const day in groupAvailability) {
@@ -149,6 +185,8 @@ const Scheduler = () => {
         }
         return groupAvailability;
     };
+
+
 
 
     const toggleAvailability = (day, index) => {
@@ -159,11 +197,15 @@ const Scheduler = () => {
             };
 
 
+
+
             // Save the updated availability to Firestore
             saveMemberAvailability(updatedAvailability);
             return updatedAvailability;
         });
     };
+
+
 
 
     const saveMemberAvailability = async (updatedAvailability) => {
@@ -177,11 +219,15 @@ const Scheduler = () => {
     };
 
 
+
+
     const getColorFromAvailability = (availability) => {
         const red = Math.round(255 * (1 - availability));
         const green = Math.round(255 * availability);
         return `rgb(${red}, ${green}, 0)`;
     };
+
+
 
 
     return (
@@ -245,8 +291,14 @@ const Scheduler = () => {
     );
 
 
+
+
 };
 
 
+
+
 export default Scheduler;
+
+
 

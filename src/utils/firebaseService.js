@@ -12,15 +12,26 @@ export const createUserDocument = async (uid, name, email) => {
     try {
         const userDocRef = doc(db, 'users', uid); // Use the UID as the document ID
 
+        // Default availability structure: all days set to false
+        const defaultAvailability = {
+            monday: Array(10).fill(false),
+            tuesday: Array(10).fill(false),
+            wednesday: Array(10).fill(false),
+            thursday: Array(10).fill(false),
+            friday: Array(10).fill(false),
+            saturday: Array(10).fill(false),
+            sunday: Array(10).fill(false),
+        };
+
         const userData = {
             name,
             email,
-            groupId: null,                  // Default: not in a group
-            groupMatched: false,            // Default value
-            questionnaireCompleted: false,  // Default value
-            answers: {},                    // Empty answers initially
-            availability: {},               // Default availability is empty
-            updatedAt: serverTimestamp(),   // Timestamp for tracking
+            groupId: [],                   // Default: not in any group, array to hold multiple groups
+            groupMatched: false,           // Default value
+            questionnaireCompleted: false, // Default value
+            answers: {},                   // Empty answers initially
+            availability: defaultAvailability, // All false availability
+            updatedAt: serverTimestamp(),  // Timestamp for tracking
         };
 
         // Write to Firestore
@@ -32,6 +43,8 @@ export const createUserDocument = async (uid, name, email) => {
         throw new Error('Failed to create user document');
     }
 };
+
+
 
 /**
  * 2. Add questionnaire answers to a user's document
@@ -67,10 +80,10 @@ export const assignUserToGroup = async (userId, groupId) => {
     try {
         const userRef = doc(db, 'users', userId);
 
-        // Update the user's group data
+        // Add the group ID to the user's groupId array
         await updateDoc(userRef, {
             groupMatched: true,
-            groupId: groupId,
+            groupId: firebase.firestore.FieldValue.arrayUnion(groupId), // Append to the groupId array
             updatedAt: serverTimestamp(),
         });
 
@@ -80,6 +93,7 @@ export const assignUserToGroup = async (userId, groupId) => {
         throw new Error('Failed to assign user to group');
     }
 };
+
 
 /**
  * 4. Create a group document in the `groups` collection
@@ -156,5 +170,50 @@ export const updateGroupName = async (groupId, name) => {
     } catch (error) {
         console.error('Error updating group name:', error);
         throw new Error('Failed to update group name');
+    }
+};
+
+
+/**
+ * Fetch user availability
+ * @param {string} userId - The user's ID
+ * @returns {Promise<object>} - The user's availability
+ */
+export const fetchUserAvailability = async (userId) => {
+    try {
+        const userRef = doc(db, 'users', userId);
+        const userDoc = await getDoc(userRef);
+
+        if (userDoc.exists()) {
+            return userDoc.data().availability;
+        } else {
+            throw new Error(`User with ID ${userId} does not exist.`);
+        }
+    } catch (error) {
+        console.error('Error fetching user availability:', error);
+        throw new Error('Failed to fetch user availability.');
+    }
+};
+
+/**
+ * Update a user's availability in Firestore
+ * @param {string} userId - The user's Firestore document ID
+ * @param {object} availability - The updated availability object
+ * @returns {Promise<void>}
+ */
+export const updateUserAvailability = async (userId, availability) => {
+    try {
+        const userRef = doc(db, 'users', userId);
+
+        // Update the user's availability and timestamp
+        await updateDoc(userRef, {
+            availability, // Set the new availability
+            updatedAt: serverTimestamp(), // Update the last modified timestamp
+        });
+
+        console.log(`User availability updated successfully for user ID: ${userId}`);
+    } catch (error) {
+        console.error('Error updating user availability:', error);
+        throw new Error('Failed to update user availability');
     }
 };
