@@ -16,9 +16,6 @@ const Questionnaire = () => {
     const [currentUser, setCurrentUser] = useState(null);
     const [initialCheckDone, setInitialCheckDone] = useState(false);
 
-    // Remove separate rankingStates as it's causing confusion
-    // We'll store everything in answers
-
     useEffect(() => {
         const checkAuth = async (user) => {
             if (user) {
@@ -45,21 +42,17 @@ const Questionnaire = () => {
     };
 
     const isQuestionnaireComplete = () => {
-        // Get all required questions
         const requiredQuestions = questions.filter(q => 
             ['rank', 'hobbies', 'text-multiple'].includes(q.type)
         );
 
-        // Check if each question has a valid answer
         return requiredQuestions.every(question => {
             const answer = answers[question.id];
             
-            // Check if answer exists and is not empty
             if (!answer || (Array.isArray(answer) && answer.length === 0)) {
                 return false;
             }
 
-            // Additional check for text-multiple (neighborhoods)
             if (question.type === 'text-multiple') {
                 return answer.some(item => item.trim() !== '');
             }
@@ -110,10 +103,13 @@ const Questionnaire = () => {
         );
     }
 
-    // Add this for debugging
-    const debugComplete = isQuestionnaireComplete();
-    console.log('Current answers:', answers);
-    console.log('Is complete:', debugComplete);
+    // Reorder questions to show location and hobbies first
+    const orderedQuestions = [
+        // First show location and hobbies questions
+        ...questions.filter(q => ['text-multiple', 'hobbies'].includes(q.type)),
+        // Then show all other questions
+        ...questions.filter(q => !['text-multiple', 'hobbies'].includes(q.type))
+    ].filter(q => ['rank', 'hobbies', 'text-multiple'].includes(q.type));
 
     return (
         <div className="max-w-2xl mx-auto p-6">
@@ -134,7 +130,7 @@ const Questionnaire = () => {
             )}
 
             <div className="space-y-8">
-                {questions.filter(q => ['rank', 'hobbies', 'text-multiple'].includes(q.type)).map((question) => (
+                {orderedQuestions.map((question) => (
                     <div key={question.id} className="bg-white p-8 rounded-2xl shadow-lg border border-purple-100 hover:border-purple-200 transition-all duration-300">
                         <h2 className="text-xl font-semibold mb-3 text-gray-800">
                             {question.question}

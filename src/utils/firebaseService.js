@@ -59,7 +59,18 @@ export const addQuestionnaireAnswers = async (userId, answers) => {
         // Update the user's questionnaire data
         await updateDoc(userRef, {
             questionnaireCompleted: true,
-            answers: answers, // Example: { "1": [1, 2, 3, 4, 5], "2": [1, 2, 3, 4, 5], ... }
+            answers: answers, 
+            // Example: {
+            // "1": [1, 2, 3, 4, 5],
+            // "2": [1, 2, 3, 4, 5],
+            // "3": [1, 2, 3, 4, 5],
+            // "4": [1, 2, 3, 4, 5],
+            // "5": [1, 2, 3, 4, 5],
+            // "6": [1, 2, 3, 4, 5],
+            // "7": [1, 2, 3, 4, 5],
+            // "8": [1, 2, 3, 4, 5],
+            // "9": ["Evanston"],              User's location
+            // "10": ["Soccer"]                User's interest}
             updatedAt: serverTimestamp(),
         });
 

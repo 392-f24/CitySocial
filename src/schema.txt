@@ -1,0 +1,62 @@
+// Users Collection
+{
+    "name": "John Doe",
+    "email": "johndoe@example.com",
+    "groupId": ["group1", "group2"],  // Array of group IDs
+    "groupMatched": true,
+    "questionnaireCompleted": true,
+    "answers": {
+        "1": [1, 2, 3, 4, 5],
+        "2": [1, 2, 3, 4, 5],
+        "3": [1, 2, 3, 4, 5],
+        "4": [1, 2, 3, 4, 5],
+        "5": [1, 2, 3, 4, 5],
+        "6": [1, 2, 3, 4, 5],
+        "7": [1, 2, 3, 4, 5],
+        "8": [1, 2, 3, 4, 5],
+        "9": ["Evanston"],
+        "10": ["Soccer"]
+    },
+    "availability": {
+        "monday": [false, false, false, true, false, false, true, false, false, false],
+        "tuesday": [true, false, false, false, true, false, false, true, false, false],
+        "wednesday": [false, true, false, false, true, true, false, false, false, true],
+        "thursday": [true, false, true, true, false, true, false, false, true, false],
+        "friday": [false, false, true, true, false, false, false, true, true, false],
+        "saturday": [true, false, true, false, true, false, false, false, true, true],
+        "sunday": [false, true, false, false, true, true, false, false, true, false]
+    },
+    "updatedAt": "2024-11-18T06:19:47.687Z"
+}
+
+// Groups Collection
+{
+    "name": "Weekend Soccer Buddies",
+    "createdAt": "2024-11-18T06:00:00.000Z",
+    "lastActivity": "2024-11-23T12:00:00.000Z",
+    "matchScore": 87,
+    "members": ["user1", "user2", "user3"],
+    "memberProfiles": {
+        "user1": {
+            "name": "John Doe",
+            "joinedAt": "2024-11-18T06:00:00.000Z"
+        },
+        "user2": {
+            "name": "Jane Smith",
+            "joinedAt": "2024-11-18T06:00:00.000Z"
+        },
+        "user3": {
+            "name": "Bob Johnson",
+            "joinedAt": "2024-11-18T06:00:00.000Z"
+        }
+    },
+    "groupAvailability": {
+        "monday": [0.4, 0.2, 0.6, 0.8, 0.1, 0.5, 0.3, 0.4, 0.2, 0.1],
+        "tuesday": [0.5, 0.4, 0.2, 0.3, 0.8, 0.5, 0.6, 0.3, 0.4, 0.1],
+        "wednesday": [0.3, 0.7, 0.5, 0.6, 0.4, 0.8, 0.7, 0.5, 0.3, 0.9],
+        "thursday": [0.9, 0.5, 0.7, 0.6, 0.3, 0.8, 0.2, 0.4, 0.5, 0.3],
+        "friday": [0.6, 0.5, 0.4, 0.3, 0.7, 0.5, 0.8, 0.4, 0.5, 0.2],
+        "saturday": [0.5, 0.6, 0.8, 0.3, 0.4, 0.5, 0.6, 0.7, 0.5, 0.4],
+        "sunday": [0.2, 0.5, 0.4, 0.8, 0.7, 0.5, 0.6, 0.3, 0.5, 0.4]
+    }
+}

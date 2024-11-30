@@ -857,8 +857,8 @@ export const questions = [
     },
     {
         id: 9,
-        question: "What neighborhood(s) do you frequent?",
-        description: "Add one or more neighborhoods where you are looking to make friends",
+        question: "What areas do you frequent?",
+        description: "Add one or more cities where you are looking to make friends",
         type: "text-multiple"
     },
     {

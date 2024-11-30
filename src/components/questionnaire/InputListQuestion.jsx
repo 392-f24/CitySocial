@@ -1,11 +1,86 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Plus, X } from 'lucide-react';
 import { HOBBIES } from '../../data/hobbies';
+
+// LocationInput subcomponent
+const LocationInput = ({ value, onChange }) => {
+  const inputRef = useRef(null);
+  
+  useEffect(() => {
+    // Load Google Maps API Script
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&libraries=places`;
+    script.async = true;
+    
+    script.onload = () => {
+      // Initialize Autocomplete after script loads
+      if (inputRef.current && window.google) {
+        const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
+          types: ['(cities)'], // This was the original setting that worked
+          componentRestrictions: { country: 'us' }
+        });
+
+        autocomplete.addListener('place_changed', () => {
+          const place = autocomplete.getPlace();
+          if (place.formatted_address) {
+            // Extract city and state
+            const cityComponent = place.address_components.find(
+              component => component.types.includes('locality')
+            );
+            const stateComponent = place.address_components.find(
+              component => component.types.includes('administrative_area_level_1')
+            );
+            
+            if (cityComponent && stateComponent) {
+              onChange(`${cityComponent.long_name}, ${stateComponent.short_name}`);
+            } else {
+              onChange(place.formatted_address);
+            }
+          }
+        });
+      }
+    };
+
+    // Add script to document if it doesn't exist
+    if (!document.querySelector(`script[src^="https://maps.googleapis.com/maps/api/js"]`)) {
+      document.head.appendChild(script);
+    }
+
+    return () => {
+      // Cleanup if needed
+    };
+  }, [onChange]);
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+    }
+  };
+
+  return (
+    <input
+      ref={inputRef}
+      type="text"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      onKeyDown={handleKeyDown}
+      className="flex-1 p-3 rounded-lg border border-purple-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-200 outline-none transition-all duration-300"
+      placeholder="Enter a city"
+    />
+  );
+};
 
 const InputListQuestion = ({ type, value = [], onChange }) => {
     const [input, setInput] = useState('');
     const [suggestions, setSuggestions] = useState([]);
     const suggestionsRef = useRef(null);
+
+    // Initialize with one empty item if value is empty
+    useEffect(() => {
+        if (type === 'text-multiple' && value.length === 0) {
+            onChange(['']);
+        }
+    }, [type, value, onChange]);
 
     const handleInputChange = (e) => {
         const inputValue = e.target.value;
@@ -39,7 +114,13 @@ const InputListQuestion = ({ type, value = [], onChange }) => {
 
     const removeItem = (index) => {
         const newItems = value.filter((_, i) => i !== index);
-        onChange(newItems.length ? newItems : []);
+        onChange(type === 'text-multiple' ? (newItems.length ? newItems : ['']) : newItems);
+    };
+
+    const handleLocationChange = (index, newValue) => {
+        const newItems = [...value];
+        newItems[index] = newValue;
+        onChange(newItems);
     };
 
     if (type === 'hobbies') {
@@ -87,21 +168,14 @@ const InputListQuestion = ({ type, value = [], onChange }) => {
         );
     }
 
-    // Neighborhoods input
+    // Neighborhoods input with Google Places Autocomplete
     return (
         <div className="space-y-4">
             {value.map((item, index) => (
                 <div key={index} className="flex gap-2">
-                    <input
-                        type="text"
+                    <LocationInput 
                         value={item}
-                        onChange={(e) => {
-                            const newItems = [...value];
-                            newItems[index] = e.target.value;
-                            onChange(newItems.filter(i => i.trim() !== ''));
-                        }}
-                        className="flex-1 p-3 rounded-lg border border-purple-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-200 outline-none transition-all duration-300"
-                        placeholder="Enter neighborhood name"
+                        onChange={(newValue) => handleLocationChange(index, newValue)}
                     />
                     {value.length > 1 && (
                         <button
@@ -118,7 +192,7 @@ const InputListQuestion = ({ type, value = [], onChange }) => {
                 className="flex items-center gap-2 text-purple-600 hover:text-purple-700 transition-colors duration-300"
             >
                 <Plus className="w-4 h-4" />
-                Add another neighborhood
+                Add another location
             </button>
         </div>
     );
