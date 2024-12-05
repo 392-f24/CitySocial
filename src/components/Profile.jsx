@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { auth, db } from '../firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
+import SignOut from './auth/SignOut';
 
 const Profile = () => {
     const [userData, setUserData] = useState(null);
@@ -37,6 +38,7 @@ const Profile = () => {
        <div>
             <h1>Welcome, {userData?.name}</h1>
             <p>Email: {userData?.email}</p>
+            <SignOut />
         </div>
     )
 }
