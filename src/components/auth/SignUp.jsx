@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { auth } from '../../firebase';
+import { auth, db } from '../../firebase';
+import { doc, setDoc } from 'firebase/firestore';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { createUserDocument } from '../../utils/firebaseService';
@@ -22,8 +23,13 @@ const SignUp = () => {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
-            // Create the user document in Firestore
-            await createUserDocument(user.uid, name, user.email);
+            // Save user data in Firestore
+            await setDoc(doc(db, 'users', user.uid), {
+                name,
+                email,
+                createdAt: new Date(),
+            });
+
 
             // Navigate to questions page
             navigate('/questions');

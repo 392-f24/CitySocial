@@ -11,6 +11,7 @@ import GroupInterface from '../src/components/GroupInterface';
 import SignIn from './components/auth/SignIn';
 import SignUp from './components/auth/SignUp';
 import Scheduler from "./components/Scheduler.jsx";
+import Profile from './components/Profile.jsx';
 
 // Protected Route wrapper component
 const ProtectedRoute = ({ children, requiresAuth, requiresQuestionnaire, requiresGroup }) => {
@@ -167,6 +168,16 @@ const App = () => {
             </ProtectedRoute>
           } 
         />
+
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute requiresAuth>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
+
 
         {/* Catch all route */}
         <Route path="*" element={<Navigate to="/" />} />
