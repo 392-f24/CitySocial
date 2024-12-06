@@ -4,6 +4,8 @@ import { collection, doc, setDoc, getDocs, updateDoc } from "firebase/firestore"
 import React, { useState, useEffect } from "react";
 
 
+
+
 const Scheduler = () => {
     const [availability, setAvailability] = useState({
         monday: Array(10).fill(false),
@@ -15,6 +17,8 @@ const Scheduler = () => {
         sunday: Array(10).fill(false),
     });
     const [groupAvailability, setGroupAvailability] = useState(null);
+
+
 
 
     // Load Alice's availability from Firestore for group1 when component mounts
@@ -32,8 +36,12 @@ const Scheduler = () => {
         };
 
 
+
+
         loadAvailability();
     }, []);
+
+
 
 
     const addMockGroups = async () => {
@@ -46,11 +54,15 @@ const Scheduler = () => {
         ];
 
 
+
+
         try {
             // Iterate over mockGroups to add each group document to Firestore
             for (const group of mockGroups) {
                 // Reference to the group document
                 const groupRef = doc(db, "groups", group.id);
+
+
 
 
                 // Add group data to Firestore
@@ -59,9 +71,13 @@ const Scheduler = () => {
                 });
 
 
+
+
                 // Add a membersAndAvailability sub-collection for each group
                 for (const member of group.members) {
                     const memberAvailabilityRef = doc(collection(db, `groups/${group.id}/membersAndAvailability`), member);
+
+
 
 
                     // Initialize default availability (all set to false)
@@ -76,10 +92,14 @@ const Scheduler = () => {
                     };
 
 
+
+
                     // Add member availability to Firestore
                     await setDoc(memberAvailabilityRef, { availability: defaultAvailability });
                 }
             }
+
+
 
 
             console.log("Mock groups and member availabilities added successfully!");
@@ -89,11 +109,15 @@ const Scheduler = () => {
     };
 
 
+
+
     // Function to calculate group availability based on individual member availability
     const calculateGroupAvailability = async () => {
         try {
             const schedulesRef = collection(db, `groups/group1/membersAndAvailability`);
             const scheduleDocs = await getDocs(schedulesRef);
+
+
 
 
             // Initialize a structure to track the group's availability count
@@ -108,9 +132,13 @@ const Scheduler = () => {
             };
 
 
+
+
             // Loop through each user's availability and calculate group availability
             scheduleDocs.forEach((doc) => {
                 const userAvailability = doc.data().availability;
+
+
 
 
                 for (const day in userAvailability) {
@@ -123,13 +151,19 @@ const Scheduler = () => {
             });
 
 
+
+
             // Normalize group availability to calculate the proportion of members available at each slot
             const groupSize = scheduleDocs.size;
             const normalizedAvailability = normalizeGroupAvailability(groupAvailability, groupSize);
 
 
+
+
             // Update the group availability state
             setGroupAvailability(normalizedAvailability);
+
+
 
 
             // Update group availability in Firestore
@@ -142,6 +176,8 @@ const Scheduler = () => {
     };
 
 
+
+
     // Function to normalize the group availability count
     const normalizeGroupAvailability = (groupAvailability, groupSize) => {
         for (const day in groupAvailability) {
@@ -149,6 +185,8 @@ const Scheduler = () => {
         }
         return groupAvailability;
     };
+
+
 
 
     const toggleAvailability = (day, index) => {
@@ -159,11 +197,15 @@ const Scheduler = () => {
             };
 
 
+
+
             // Save the updated availability to Firestore
             saveMemberAvailability(updatedAvailability);
             return updatedAvailability;
         });
     };
+
+
 
 
     const saveMemberAvailability = async (updatedAvailability) => {
@@ -177,6 +219,8 @@ const Scheduler = () => {
     };
 
 
+
+
     const getColorFromAvailability = (availability) => {
         const red = Math.round(255 * (1 - availability));
         const green = Math.round(255 * availability);
@@ -184,34 +228,77 @@ const Scheduler = () => {
     };
 
 
+
+
     return (
-        <div className="p-4">
-            <h1 className="text-2xl font-bold mb-4">Scheduler</h1>
-            <div className="mb-4 space-x-2">
-                <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" onClick={() => { addMockGroups(); setGroupAvailability(null); }}>My Availability</button>
-                <button className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" onClick={calculateGroupAvailability}>Group Availability</button>
+        <div className="p-4 bg-gradient-to-b from-purple-50 to-pink-50 min-h-screen">
+            <h1 className="text-3xl font-bold mb-6 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                Scheduler
+            </h1>
+            <div className="mb-6 space-y-3 sm:space-y-0 sm:space-x-4 flex flex-col sm:flex-row">
+                <button
+                    className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-5 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                    onClick={() => {
+                        addMockGroups();
+                        setGroupAvailability(null);
+                    }}
+                >
+                    My Availability
+                </button>
+                <button
+                    className="bg-gradient-to-r from-pink-600 to-purple-600 text-white px-5 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                    onClick={calculateGroupAvailability}
+                >
+                    Group Availability
+                </button>
             </div>
-            <div className="grid grid-cols-7 gap-4">
+            <div className="grid grid-cols-2 gap-6 sm:grid-cols-4 md:grid-cols-7">
                 {Object.keys(availability).map((day) => (
-                    <div key={day} className="day-column p-2 border rounded-lg">
-                        <h3 className="text-lg font-semibold mb-2">{day.charAt(0).toUpperCase() + day.slice(1)}</h3>
-                        {(groupAvailability ? groupAvailability[day] : availability[day]).map((value, index) => (
-                            <div
-                                key={index}
-                                className="time-slot cursor-pointer p-2 mb-1 rounded"
-                                style={{ backgroundColor: getColorFromAvailability(groupAvailability ? value : (availability[day][index] ? 1 : 0)) }}
-                                onClick={() => !groupAvailability && toggleAvailability(day, index)}
-                            >
-                                {10 + index}:00 - {11 + index}:00
-                            </div>
-                        ))}
+                    <div
+                        key={day}
+                        className="day-column p-4 border border-purple-100 rounded-xl shadow-sm bg-white"
+                    >
+                        <h3 className="text-lg font-bold mb-4 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                            {day.charAt(0).toUpperCase() + day.slice(1)}
+                        </h3>
+                        {(groupAvailability ? groupAvailability[day] : availability[day]).map(
+                            (value, index) => (
+                                <div
+                                    key={index}
+                                    className="time-slot cursor-pointer p-3 mb-2 rounded-lg text-sm text-center shadow-sm transition-all duration-300"
+                                    style={{
+                                        backgroundColor: getColorFromAvailability(
+                                            groupAvailability
+                                                ? value
+                                                : availability[day][index]
+                                                    ? 1
+                                                    : 0
+                                        ),
+                                        color: "white",
+                                    }}
+                                    onClick={() =>
+                                        !groupAvailability && toggleAvailability(day, index)
+                                    }
+                                >
+                                    {10 + index}:00 - {11 + index}:00
+                                </div>
+                            )
+                        )}
                     </div>
                 ))}
             </div>
         </div>
     );
+
+
+
+
 };
 
 
+
+
 export default Scheduler;
+
+
 
