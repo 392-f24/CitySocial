@@ -15,6 +15,7 @@ const Questionnaire = () => {
     const [error, setError] = useState(null);
     const [currentUser, setCurrentUser] = useState(null);
     const [initialCheckDone, setInitialCheckDone] = useState(false);
+    const [currentSection, setCurrentSection] = useState(0);
 
     useEffect(() => {
         const checkAuth = async (user) => {
@@ -105,69 +106,111 @@ const Questionnaire = () => {
 
     // Reorder questions to show location and hobbies first
     const orderedQuestions = [
-        // First show location and hobbies questions
         ...questions.filter(q => ['text-multiple', 'hobbies'].includes(q.type)),
-        // Then show all other questions
         ...questions.filter(q => !['text-multiple', 'hobbies'].includes(q.type))
     ].filter(q => ['rank', 'hobbies', 'text-multiple'].includes(q.type));
 
+    // Split questions into sections of 2
+    const sections = [];
+    for (let i = 0; i < orderedQuestions.length; i += 2) {
+        sections.push(orderedQuestions.slice(i, i + 2));
+    }
+
     return (
-        <div className="max-w-2xl mx-auto p-6">
+        <div className="min-h-screen bg-gradient-to-b from-purple-50 to-pink-50">
             <Navigation />
-            <div className="mt-4 text-center">
-                <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                    Find Your Tribe
-                </h1>
-                <p className="mt-4 text-gray-600">
-                    Answer these research-driven questions to discover genuine connections with people near you
-                </p>
-            </div>
-
-            {error && (
-                <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl">
-                    {error}
+            <div className="max-w-6xl mx-auto p-8">
+                <div className="text-center mb-12">
+                    <h1 className="text-6xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                        Find Your Tribe
+                    </h1>
+                    <p className="mt-6 text-lg text-gray-600 max-w-2xl mx-auto">
+                        Answer these research-driven questions to discover genuine connections with people near you
+                    </p>
                 </div>
-            )}
 
-            <div className="space-y-8">
-                {orderedQuestions.map((question) => (
-                    <div key={question.id} className="bg-white p-8 rounded-2xl shadow-lg border border-purple-100 hover:border-purple-200 transition-all duration-300">
-                        <h2 className="text-xl font-semibold mb-3 text-gray-800">
-                            {question.question}
-                        </h2>
-                        <p className="text-gray-500 mb-6 text-sm">
-                            {question.description}
-                        </p>
-                        {question.type === 'rank' ? (
-                            <RankingQuestion
-                                question={question}
-                                currentRanking={answers[question.id]}
-                                onRankingChange={(newRanking) => handleAnswerUpdate(question.id, newRanking)}
-                            />
-                        ) : (
-                            <InputListQuestion
-                                type={question.type}
-                                value={answers[question.id] || []}
-                                onChange={(value) => handleAnswerUpdate(question.id, value)}
-                            />
-                        )}
+                {error && (
+                    <div className="mb-8 p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl max-w-2xl mx-auto">
+                        {error}
                     </div>
-                ))}
-                
-                <button
-                    className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 rounded-xl hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 font-semibold text-lg"
-                    onClick={handleSubmit}
-                    disabled={loading || !isQuestionnaireComplete()}
-                >
-                    <div className="flex items-center justify-center gap-2">
-                        {loading ? "Saving..." : (
-                            <>
-                                <Sparkles className="w-5 h-5" />
-                                Find My Perfect Group
-                            </>
-                        )}
-                    </div>
-                </button>
+                )}
+
+                <div className="mb-8 flex justify-center gap-2">
+                    {sections.map((_, index) => (
+                        <button
+                            key={index}
+                            onClick={() => setCurrentSection(index)}
+                            className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                                currentSection === index 
+                                    ? 'bg-purple-600 scale-125' 
+                                    : 'bg-purple-200 hover:bg-purple-300'
+                            }`}
+                        />
+                    ))}
+                </div>
+
+                <div className="grid grid-cols-2 gap-8">
+                    {sections[currentSection]?.map((question) => (
+                        <div 
+                            key={question.id} 
+                            className="bg-white p-8 rounded-2xl shadow-lg border border-purple-100 hover:border-purple-200 transition-all duration-300"
+                        >
+                            <h2 className="text-2xl font-semibold mb-4 text-gray-800">
+                                {question.question}
+                            </h2>
+                            <p className="text-gray-500 mb-6">
+                                {question.description}
+                            </p>
+                            {question.type === 'rank' ? (
+                                <RankingQuestion
+                                    question={question}
+                                    currentRanking={answers[question.id]}
+                                    onRankingChange={(newRanking) => handleAnswerUpdate(question.id, newRanking)}
+                                />
+                            ) : (
+                                <InputListQuestion
+                                    type={question.type}
+                                    value={answers[question.id] || []}
+                                    onChange={(value) => handleAnswerUpdate(question.id, value)}
+                                />
+                            )}
+                        </div>
+                    ))}
+                </div>
+
+                <div className="mt-12 flex justify-center gap-4">
+                    {currentSection > 0 && (
+                        <button
+                            onClick={() => setCurrentSection(prev => prev - 1)}
+                            className="px-8 py-4 rounded-xl bg-white border border-purple-200 hover:border-purple-300 text-purple-600 font-semibold transition-all duration-300"
+                        >
+                            Previous
+                        </button>
+                    )}
+                    {currentSection < sections.length - 1 ? (
+                        <button
+                            onClick={() => setCurrentSection(prev => prev + 1)}
+                            className="px-8 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold hover:shadow-lg transition-all duration-300"
+                        >
+                            Next
+                        </button>
+                    ) : (
+                        <button
+                            className="px-8 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+                            onClick={handleSubmit}
+                            disabled={loading || !isQuestionnaireComplete()}
+                        >
+                            <div className="flex items-center justify-center gap-2">
+                                {loading ? "Saving..." : (
+                                    <>
+                                        <Sparkles className="w-5 h-5" />
+                                        Find My Perfect Group
+                                    </>
+                                )}
+                            </div>
+                        </button>
+                    )}
+                </div>
             </div>
         </div>
     );
