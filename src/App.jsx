@@ -4,11 +4,14 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from './firebase'; // Adjust import path as needed
 
+
 import Questionnaire from '../src/components/Questionnaire';
 import Persons from '../src/components/Persons';
 import GroupInterface from '../src/components/GroupInterface';
 import SignIn from './components/auth/SignIn';
 import SignUp from './components/auth/SignUp';
+import Scheduler from "./components/Scheduler.jsx";
+import Profile from './components/Profile.jsx';
 
 // Protected Route wrapper component
 const ProtectedRoute = ({ children, requiresAuth, requiresQuestionnaire, requiresGroup }) => {
@@ -107,6 +110,7 @@ const AuthRoute = ({ children }) => {
 };
 
 const App = () => {
+
   return (
     <Router>
       <Routes>
@@ -138,13 +142,22 @@ const App = () => {
           } 
         />
 
-        <Route 
-          path="/persons" 
+        <Route
+          path="/persons"
           element={
             <ProtectedRoute>
               <Persons />
             </ProtectedRoute>
-          } 
+          }
+        />
+
+        <Route
+            path="/whentomeet"
+            element={
+              <ProtectedRoute>
+                <Scheduler />
+              </ProtectedRoute>
+            }
         />
 
         <Route 
@@ -155,6 +168,16 @@ const App = () => {
             </ProtectedRoute>
           } 
         />
+
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute requiresAuth>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
+
 
         {/* Catch all route */}
         <Route path="*" element={<Navigate to="/" />} />

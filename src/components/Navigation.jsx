@@ -1,7 +1,16 @@
 import React from 'react';
 import SignOut from './auth/SignOut';
+import Profile from './Profile';
+import { useNavigate } from 'react-router-dom';
 
-const Navigation = () => (
+const Navigation = () => {
+  const navigate = useNavigate();
+
+  const goProfile = () => {
+    navigate('/profile');
+  };
+
+  return (
     <nav style={{
       padding: '12px 20px',
       backgroundColor: 'white',
@@ -26,8 +35,24 @@ const Navigation = () => (
           CitySocial
         </span>
       </div>
-      <SignOut />
+
+      <button
+            onClick={goProfile}
+            style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '0',
+            }}
+            aria-label="Go to profile"
+        >
+            <i className="fa-solid fa-user bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 px-6 rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300 font-semibold text-base"
+            ></i>
+      </button>
+
     </nav>
-);
+  )
+}
+    
 
 export default Navigation
