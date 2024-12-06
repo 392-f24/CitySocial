@@ -134,7 +134,7 @@ const Persons = () => {
   <div className="max-w-4xl mx-auto p-6">
     <Navigation/>
     <div className="text-center mb-12">
-      <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+      <h1 className="text-4xl font-bold pt-4 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
         Your Perfect Match Found!
       </h1>
       <p className="text-gray-600">We've found a group that shares your interests and values</p>
