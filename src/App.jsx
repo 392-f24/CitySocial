@@ -163,9 +163,7 @@ const App = () => {
         <Route 
           path="/chat" 
           element={
-            <ProtectedRoute requiresAuth requiresQuestionnaire requiresGroup>
-              <GroupInterface />c
-            </ProtectedRoute>
+              <GroupInterface />
           } 
         />
 
