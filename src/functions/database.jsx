@@ -2,6 +2,7 @@ import { db } from "../firebase";
 
 import { collection, addDoc, getDoc, doc, getDocs, updateDoc, deleteDoc, onSnapshot, query, orderBy } from "firebase/firestore";
 
+// Adding a group by creating new document in the "groups" collection
 export const addGroup = async () => {
     try {
         const docRef = await addDoc(collection(db, "groups"), {
@@ -16,6 +17,7 @@ export const addGroup = async () => {
 };
 
 
+// Getting a group by fetching a document from the "groups" collection
 export const getGroup = async (groupId) => {
     const docRef = doc(db, "groups", groupId);
     const docSnap = await getDoc(docRef);
@@ -28,6 +30,7 @@ export const getGroup = async (groupId) => {
 };
 
 
+// Getting all groups by querrying all documents from the "groups" collection
 export const getAllGroups = async () => {
     const querySnapshot = await getDocs(collection(db, "groups"));
     querySnapshot.forEach((doc) => {
@@ -36,6 +39,7 @@ export const getAllGroups = async () => {
 };
 
 
+// Updating a group by updating a document in the "groups" collection
 export const updateGroup = async (groupId) => {
     const docRef = doc(db, "groups", groupId);
 
@@ -55,6 +59,7 @@ export const updateGroup = async (groupId) => {
 };
 
 
+// Deleting a group by deleting a document from the "groups" collection
 export const deleteGroup = async (groupId) => {
     const docRef = doc(db, "groups", groupId);
     try {
@@ -66,6 +71,7 @@ export const deleteGroup = async (groupId) => {
 };
 
 
+// Listening to changes in the "groups" collection - groups added, modified, or removed
 export const listenToGroups = () => {
     const groupsRef = collection(db, "groups");
 
@@ -85,6 +91,7 @@ export const listenToGroups = () => {
 };
 
 
+// Adding a message to a group by creating a new document in the "messages" subcollection of the group
 export const addMessage = async (groupId, message) => {
     try {
         const messagesRef = collection(db, `groups/${groupId}/messages`);
@@ -100,6 +107,7 @@ export const addMessage = async (groupId, message) => {
 };
 
 
+// Getting messages from a group by fetching all documents from the "messages" subcollection of the group
 export const getMessages = async (groupId) => {
     const messagesRef = collection(db, `groups/${groupId}/messages`);
     const q = query(messagesRef, orderBy("sentAt"));
