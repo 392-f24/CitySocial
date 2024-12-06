@@ -16,8 +16,6 @@ const Questionnaire = () => {
     const [currentUser, setCurrentUser] = useState(null);
     const [initialCheckDone, setInitialCheckDone] = useState(false);
 
-    // Remove separate rankingStates as it's causing confusion
-    // We'll store everything in answers
 
     useEffect(() => {
         const checkAuth = async (user) => {
@@ -38,7 +36,7 @@ const Questionnaire = () => {
     }, [navigate]);
 
     const handleAnswerUpdate = (questionId, value) => {
-        setAnswers(prev => ({
+        setAnswers((prev) => ({
             ...prev,
             [questionId]: value
         }));
