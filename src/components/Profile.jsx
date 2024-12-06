@@ -48,26 +48,30 @@ const Profile = () => {
         fetchUserData();
     }, [navigate]);
 
-    const handleSave = async () => {
-        if (!user) {
-            console.error('User is not logged in!');
-            return;
-        }
-        try {
-            const userRef = doc(db, 'users', user.uid);
-            await setDoc(
-                userRef, {
-                    answers,
-                    updatedAt: new Date().toISOString(),
-                },
-                {merge: true}
-            );
-            setUserData((prev) => ({ ...prev, answers}));
-        }
-        catch (error) {
-            console.error("Error saving user data: ", error);
-        }
-    };
+    useEffect(() => {
+        const saveAnswers = async () => {
+            if (!user) {
+                console.error('User not logged in');
+                return;
+            }
+            try {
+                const userRef = doc(db, 'users', user.uid);
+                await setDoc(
+                    userRef,
+                    {
+                        answers, 
+                        updatedAt: new Date().toISOString(),
+                    },
+                    {merge:true},
+                );
+                setUserData((prev) => ({ ...prev, answers }))
+            } catch (error) {
+                console.error('Error saving user data: ', error);
+            }
+        };
+        saveAnswers();
+    }, [answers, user]);
+
 
     const handleAnswerUpdate = (questionId, value) => {
         setAnswers((prev) => ({
@@ -127,18 +131,7 @@ const Profile = () => {
                             </div>
                         </div>
                     ))}
-            </div>
-
-
-        <div className='py-5 sm:py-4 lg:py-6 lg:px-3'>
-            <button 
-                className='sm:px-6 lg:py-5 lg:px-8 w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 px-6 rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300 font-semibold text-base'
-                onClick={handleSave}
-            >
-                    Save Changes
-            </button>
-        </div>
-            
+            </div>            
         </div>
     );
 };
